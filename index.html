@@ -4,29 +4,139 @@
     <meta charset='utf-8' />
     <title></title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.11.2/mapbox-gl.js'></script>
-    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.11.2/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.14.3/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.14.3/mapbox-gl.css' rel='stylesheet' />
     <style>
         body { margin:0; padding:0; }
         #map { position:absolute; top:0; bottom:0; width:100%; }
     </style>
 </head>
 <body>
-
+​
+<style>
+    #menu {
+        background: #fff;
+        position: absolute;
+        z-index: 1;
+        top: 10px;
+        right: 10px;
+        border-radius: 3px;
+        width: 120px;
+        border: 1px solid rgba(0,0,0,0.4);
+        font-family: 'Open Sans', sans-serif;
+    }
+​
+    #menu a {
+        font-size: 13px;
+        color: #404040;
+        display: block;
+        margin: 0;
+        padding: 0;
+        padding: 10px;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(0,0,0,0.25);
+        text-align: center;
+    }
+​
+    #menu a:last-child {
+        border: none;
+    }
+​
+    #menu a:hover {
+        background-color: #f8f8f8;
+        color: #404040;
+    }
+​
+    #menu a.active {
+        background-color: #404040;
+        color: #ffffff;
+    }
+​
+    #menu a.active:hover {
+        background: #8c8c8c;
+    }
+</style>
+​
+<nav id="menu"></nav>
 <div id='map'></div>
+​
 <script>
 mapboxgl.accessToken = 'pk.eyJ1IjoicmNhbGxpaGFuIiwiYSI6IlRKUVFvSUEifQ.gZ65speTXetjHscGe6aDWA';
 var map = new mapboxgl.Map({
     container: 'map', // container id
-    style: 'mapbox://styles/rcallihan/cil2je68n000c9rm8c7tabutx', //stylesheet location
+    // style: 'mapbox://styles/rcallihan/cil2je68n000c9rm8c7tabutx', //stylesheet location
+    style: 'mapbox://styles/mapbox/dark-v8',
     center: [-99, 39], // starting position
     minZoom: 3,
-    maxZoom: 14,
+    maxZoom: 12,
     zoom: 4 // starting zoom,
 });
 map.addControl(new mapboxgl.Navigation({position: 'top-left'}));
-map.dragRotate.disable();
+​
+​
+//I do not understand this part. 
+map.on('style.load', function () {
+    map.addSource('Land_Mobile_Commercial_Transmiss', {
+        type: 'vector',
+        url: 'mapbox://styles/rcallihan/cil2je68n000c9rm8c7tabutx'
+    });
+    map.addLayer({
+        'id': 'Land_Mobile_Commercial_Transmiss',
+        'type': 'circle',
+        'source': 'Land_Mobile_Commercial_Transmiss',
+        'paint': {
+            'circle-radius': 8,
+            'circle-color': 'rgba(55,148,179,1)'
+        },
+        'source-layer': 'Commercial Towers'
+    });
+​
+    map.addSource('Land_Mobile_Private_Transmission', {
+        type: 'vector',
+        url: 'rcallihan.7z0cyrdl'
+    });
+    map.addLayer({
+        'id': 'Land_Mobile_Private_Transmission',
+        'type': 'circle',
+        'source': 'Land_Mobile_Private_Transmission',
+        'source-layer': 'Land_Mobile_Private_Transmission',
+        'paint': {
+            'circle-radius': 8,
+            'circle-color': 'rgba(55,148,179,1)'
+        },
+    });
+});
+​
+addLayer('Private', 'Land_Mobile_Private_Transmission');
+addLayer('Commercial', 'Land_Mobile_Commercial_Transmiss');
+​
+function addLayer(name, id) {
+    var link = document.createElement('a');
+    link.href = '#';
+    link.className = 'active';
+    link.textContent = name;
+​
+    link.onclick = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+​
+        var visibility = map.getLayoutProperty(id, 'visibility');
+​
+        if (visibility === 'visible') {
+            map.setLayoutProperty(id, 'visibility', 'none');
+            this.className = '';
+        } else {
+            this.className = 'active';
+            map.setLayoutProperty(id, 'visibility', 'visible');
+        }
+    };
+​
+    var layers = document.getElementById('menu');
+    layers.appendChild(link);
+}
+​
+​
 </script>
-
+​
 </body>
 </html>
