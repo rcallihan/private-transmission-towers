@@ -4,8 +4,8 @@
     <meta charset='utf-8' />
     <title></title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.11.2/mapbox-gl.js'></script>
-    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.11.2/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.14.3/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.14.3/mapbox-gl.css' rel='stylesheet' />
     <style>
         body { margin:0; padding:0; }
         #map { position:absolute; top:0; bottom:0; width:100%; }
@@ -13,19 +13,132 @@
 </head>
 <body>
 
+<style>
+    #menu {
+        background: #666666;
+        position: absolute;
+        z-index: 1;
+        top: 10px;
+        right: 10px;
+        border-radius: 3px;
+        width: 120px;
+        border: 1px solid rgba(0,0,0,0.4);
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    #menu a {
+        font-size: 15px;
+        font-weight: bold;
+        color: #404040;
+        display: block;
+        margin: 0;
+        padding: 0;
+        padding: 10px;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(0,0,0,0.25);
+        text-align: center;
+    }
+
+    #menu a:last-child {
+        border: none;
+    }
+
+    #menu a:hover {
+        background-color: #f8f8f8;
+        color: #404040;
+    }
+
+    #menu a.active {
+        background-color: #666666;
+        color: #fff;
+    }
+
+    #menu a.active:hover {
+        background: #3074a4;
+    }
+</style>
+
+<nav id="menu"></nav>
 <div id='map'></div>
+
 <script>
 mapboxgl.accessToken = 'pk.eyJ1IjoicmNhbGxpaGFuIiwiYSI6IlRKUVFvSUEifQ.gZ65speTXetjHscGe6aDWA';
 var map = new mapboxgl.Map({
     container: 'map', // container id
-    style: 'mapbox://styles/rcallihan/cil2je68n000c9rm8c7tabutx', //stylesheet location
+    style: 'mapbox://styles/mapbox/dark-v8',
     center: [-99, 39], // starting position
     minZoom: 3,
-    maxZoom: 14,
+    maxZoom: 8,
     zoom: 4 // starting zoom,
 });
 map.addControl(new mapboxgl.Navigation({position: 'top-left'}));
 map.dragRotate.disable();
+
+//I do not understand this part. 
+map.on('style.load', function () {
+    
+    map.addSource('land_mobile_private_transmission_towers_justtowers', {
+        'type': 'vector',
+        'url': 'mapbox://rcallihan.7z0cyrdl'
+    });
+    map.addLayer({
+        'id': 'Private Towers',
+        'type': 'circle',
+        'source': 'land_mobile_private_transmission_towers_justtowers',
+            'paint': {
+            'circle-radius': 2,
+            'circle-opacity': 0.3,
+            'circle-color': 'rgba(158,232,255,0.8)'
+        },
+        'source-layer': 'land_mobile_private_transmission_towers_justtowers'
+    });
+
+    map.addSource('OGRGeoJSON', {
+        'type': 'vector',
+        'url': 'mapbox://rcallihan.2lfg1ele'
+    });
+    map.addLayer({
+        'id': 'Commercial Towers',
+        'type': 'circle',
+        'source': 'OGRGeoJSON',
+        'paint': {
+            'circle-radius': 2,
+            'circle-color': 'rgba(242,230,142,0.8)',
+            'circle-opacity': 0.3
+        },
+        'source-layer': 'OGRGeoJSON'
+    });
+ });
+
+addLayer('Private', 'Private Towers');
+addLayer('Commercial', 'Commercial Towers');
+
+function addLayer(name, id) {
+    var link = document.createElement('a');
+    link.href = '#';
+    link.className = 'active';
+    link.textContent = name;
+
+    link.onclick = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var visibility = map.getLayoutProperty(id, 'visibility');
+
+        if (visibility === 'visible') {
+            map.setLayoutProperty(id, 'visibility', 'none');
+            this.className = '';
+        } else {
+            this.className = 'active';
+            map.setLayoutProperty(id, 'visibility', 'visible');
+        }
+    };
+
+    var layers = document.getElementById('menu');
+    layers.appendChild(link);
+}
+
+
 </script>
 
 </body>
