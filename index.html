@@ -12,10 +12,10 @@
     </style>
 </head>
 <body>
-​
+
 <style>
     #menu {
-        background: #fff;
+        background: #666666;
         position: absolute;
         z-index: 1;
         top: 10px;
@@ -25,9 +25,10 @@
         border: 1px solid rgba(0,0,0,0.4);
         font-family: 'Open Sans', sans-serif;
     }
-​
+
     #menu a {
-        font-size: 13px;
+        font-size: 15px;
+        font-weight: bold;
         color: #404040;
         display: block;
         margin: 0;
@@ -37,91 +38,93 @@
         border-bottom: 1px solid rgba(0,0,0,0.25);
         text-align: center;
     }
-​
+
     #menu a:last-child {
         border: none;
     }
-​
+
     #menu a:hover {
         background-color: #f8f8f8;
         color: #404040;
     }
-​
+
     #menu a.active {
-        background-color: #404040;
-        color: #ffffff;
+        background-color: #666666;
+        color: #fff;
     }
-​
+
     #menu a.active:hover {
-        background: #8c8c8c;
+        background: #3074a4;
     }
 </style>
-​
+
 <nav id="menu"></nav>
 <div id='map'></div>
-​
+
 <script>
 mapboxgl.accessToken = 'pk.eyJ1IjoicmNhbGxpaGFuIiwiYSI6IlRKUVFvSUEifQ.gZ65speTXetjHscGe6aDWA';
 var map = new mapboxgl.Map({
     container: 'map', // container id
-    // style: 'mapbox://styles/rcallihan/cil2je68n000c9rm8c7tabutx', //stylesheet location
     style: 'mapbox://styles/mapbox/dark-v8',
     center: [-99, 39], // starting position
     minZoom: 3,
-    maxZoom: 12,
+    maxZoom: 8,
     zoom: 4 // starting zoom,
 });
 map.addControl(new mapboxgl.Navigation({position: 'top-left'}));
-​
-​
+map.dragRotate.disable();
+
 //I do not understand this part. 
 map.on('style.load', function () {
-    map.addSource('Land_Mobile_Commercial_Transmiss', {
-        type: 'vector',
-        url: 'mapbox://styles/rcallihan/cil2je68n000c9rm8c7tabutx'
+    
+    map.addSource('land_mobile_private_transmission_towers_justtowers', {
+        'type': 'vector',
+        'url': 'mapbox://rcallihan.7z0cyrdl'
     });
     map.addLayer({
-        'id': 'Land_Mobile_Commercial_Transmiss',
+        'id': 'Private Towers',
         'type': 'circle',
-        'source': 'Land_Mobile_Commercial_Transmiss',
-        'paint': {
-            'circle-radius': 8,
-            'circle-color': 'rgba(55,148,179,1)'
+        'source': 'land_mobile_private_transmission_towers_justtowers',
+            'paint': {
+            'circle-radius': 2,
+            'circle-opacity': 0.3,
+            'circle-color': 'rgba(158,232,255,0.8)'
         },
-        'source-layer': 'Commercial Towers'
+        'source-layer': 'land_mobile_private_transmission_towers_justtowers'
     });
-​
-    map.addSource('Land_Mobile_Private_Transmission', {
-        type: 'vector',
-        url: 'rcallihan.7z0cyrdl'
+
+    map.addSource('OGRGeoJSON', {
+        'type': 'vector',
+        'url': 'mapbox://rcallihan.2lfg1ele'
     });
     map.addLayer({
-        'id': 'Land_Mobile_Private_Transmission',
+        'id': 'Commercial Towers',
         'type': 'circle',
-        'source': 'Land_Mobile_Private_Transmission',
-        'source-layer': 'Land_Mobile_Private_Transmission',
+        'source': 'OGRGeoJSON',
         'paint': {
-            'circle-radius': 8,
-            'circle-color': 'rgba(55,148,179,1)'
+            'circle-radius': 2,
+            'circle-color': 'rgba(242,230,142,0.8)',
+            'circle-opacity': 0.3
         },
+        'source-layer': 'OGRGeoJSON'
     });
-});
-​
-addLayer('Private', 'Land_Mobile_Private_Transmission');
-addLayer('Commercial', 'Land_Mobile_Commercial_Transmiss');
-​
+ });
+
+addLayer('Private', 'Private Towers');
+addLayer('Commercial', 'Commercial Towers');
+
 function addLayer(name, id) {
     var link = document.createElement('a');
     link.href = '#';
     link.className = 'active';
     link.textContent = name;
-​
+
     link.onclick = function (e) {
         e.preventDefault();
         e.stopPropagation();
-​
+
         var visibility = map.getLayoutProperty(id, 'visibility');
-​
+
         if (visibility === 'visible') {
             map.setLayoutProperty(id, 'visibility', 'none');
             this.className = '';
@@ -130,13 +133,13 @@ function addLayer(name, id) {
             map.setLayoutProperty(id, 'visibility', 'visible');
         }
     };
-​
+
     var layers = document.getElementById('menu');
     layers.appendChild(link);
 }
-​
-​
+
+
 </script>
-​
+
 </body>
 </html>
