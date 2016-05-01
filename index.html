@@ -74,9 +74,7 @@ var map = new mapboxgl.Map({
 map.addControl(new mapboxgl.Navigation({position: 'top-left'}));
 map.dragRotate.disable();
 
-//I do not understand this part. 
 map.on('style.load', function () {
-    
     map.addSource('land_mobile_private_transmission_towers_justtowers', {
         'type': 'vector',
         'url': 'mapbox://rcallihan.7z0cyrdl'
@@ -125,7 +123,7 @@ function addLayer(name, id) {
 
         var visibility = map.getLayoutProperty(id, 'visibility');
 
-        if (visibility === 'visible') {
+        if (visibility === 'visible' || visibility === undefined) {
             map.setLayoutProperty(id, 'visibility', 'none');
             this.className = '';
         } else {
@@ -133,7 +131,6 @@ function addLayer(name, id) {
             map.setLayoutProperty(id, 'visibility', 'visible');
         }
     };
-
     var layers = document.getElementById('menu');
     layers.appendChild(link);
 }
